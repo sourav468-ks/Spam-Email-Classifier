@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SpamGuard Gmail Dashboard — analyze your Gmail inbox with AI-powered spam detection.">
+    <title>SpamGuard — Gmail Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230050cb'/><text y='22' x='4' font-size='20'>🛡️</text></svg>">
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <!-- ================================================================== -->
+    <!-- HEADER                                                              -->
+    <!-- ================================================================== -->
+    <header class="site-header">
+        <div class="site-header__logo">
+            <div class="site-header__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 10.99h6c-.46 3.06-2.78 5.82-6 6.83V13H6V7.65l6-2.25v7.59z"/>
+                </svg>
+            </div>
+            <h1 class="site-header__title">Spam<span>Guard</span></h1>
+        </div>
+
+        <!-- User info + actions -->
+        <div class="dashboard-topbar">
+            <div class="user-info" id="user-info" aria-live="polite">
+                <span class="user-avatar" id="user-avatar" aria-hidden="true">👤</span>
+                <span class="user-email" id="user-email">Loading…</span>
+            </div>
+            <div class="topbar-actions">
+                <a href="/" class="btn-outline" id="back-to-classifier" aria-label="Back to manual classifier">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                    Classifier
+                </a>
+                <form id="logout-form" action="/logout" method="post" style="display:inline;">
+                    <button id="logout-btn" class="btn-outline btn-outline--danger" type="submit" aria-label="Logout">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================================================================== -->
+    <!-- CONTROLS CARD                                                       -->
+    <!-- ================================================================== -->
+    <section class="dashboard-controls glass" aria-label="Gmail analysis controls">
+        <div class="controls-row">
+            <!-- Search input -->
+            <div class="search-group">
+                <label class="input-label" for="gmail-search">Gmail Search (optional)</label>
+                <div class="search-input-wrap">
+                    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <input
+                        id="gmail-search"
+                        class="search-input"
+                        type="text"
+                        placeholder="e.g. is:unread  or  from:newsletter"
+                        maxlength="500"
+                        aria-describedby="search-hint"
+                    >
+                </div>
+                <p id="search-hint" class="hint-text">Uses Gmail search syntax. Leave blank to analyze latest emails.</p>
+            </div>
+
+            <!-- Max results selector -->
+            <div class="max-results-group">
+                <label class="input-label" for="max-results-select">Emails to Analyze</label>
+                <select id="max-results-select" class="select-input" aria-label="Number of emails to analyze">
+                    <option value="5">5 emails</option>
+                    <option value="10" selected>10 emails</option>
+                    <option value="20">20 emails</option>
+                    <option value="50">50 emails</option>
+                </select>
+            </div>
+
+            <!-- Analyze button -->
+            <button
+                id="analyze-btn"
+                class="btn-classify"
+                type="button"
+                aria-label="Analyze Gmail emails for spam"
+            >
+                <svg class="btn-classify__icon" id="analyze-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                </svg>
+                <div class="spinner" id="analyze-spinner" aria-hidden="true"></div>
+                <span class="btn-classify__text" id="analyze-text">Analyze Latest Emails</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- ERROR BANNER                                                        -->
+    <!-- ================================================================== -->
+    <div
+        id="dashboard-error"
+        class="error-message"
+        role="alert"
+        aria-live="assertive"
+    >
+        <svg class="error-message__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <span id="dashboard-error-text"></span>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- RESULTS TABLE                                                       -->
+    <!-- ================================================================== -->
+    <section
+        id="results-section"
+        class="results-section glass"
+        aria-label="Gmail analysis results"
+        aria-live="polite"
+    >
+        <!-- Summary bar -->
+        <div class="results-summary" id="results-summary">
+            <span class="results-count" id="results-count"></span>
+            <div class="results-legend">
+                <span class="legend-item">
+                    <span class="legend-dot legend-dot--spam"></span> Spam
+                </span>
+                <span class="legend-item">
+                    <span class="legend-dot legend-dot--ham"></span> Ham
+                </span>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper" role="region" aria-label="Email results table">
+            <table class="gmail-table" id="gmail-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Subject</th>
+                        <th scope="col">Sender</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Result</th>
+                    </tr>
+                </thead>
+                <tbody id="gmail-table-body">
+                    <!-- Populated by dashboard.js -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="empty-state" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            <p>No emails found for this search.</p>
+            <p class="hint-text">Try a different search query or click "Analyze Latest Emails" without a filter.</p>
+        </div>
+
+        <!-- Initial state -->
+        <div id="initial-state" class="empty-state">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+            </svg>
+            <p>Click <strong>Analyze Latest Emails</strong> to get started.</p>
+            <p class="hint-text">SpamGuard will read your Gmail, run the classifier, and show which emails are spam.</p>
+        </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- STATS CARDS                                                         -->
+    <!-- ================================================================== -->
+    <section class="stats-grid" id="stats-grid" aria-label="Analysis statistics" hidden>
+        <div class="stat-card glass-subtle">
+            <span class="stat-card__label">Total Analyzed</span>
+            <span class="stat-card__value accent" id="stat-total">—</span>
+        </div>
+        <div class="stat-card glass-subtle">
+            <span class="stat-card__label">Spam Detected</span>
+            <span class="stat-card__value" id="stat-spam" style="color: var(--error);">—</span>
+        </div>
+        <div class="stat-card glass-subtle">
+            <span class="stat-card__label">Ham (Legit)</span>
+            <span class="stat-card__value" id="stat-ham" style="color: var(--tertiary);">—</span>
+        </div>
+        <div class="stat-card glass-subtle">
+            <span class="stat-card__label">Spam Rate</span>
+            <span class="stat-card__value accent" id="stat-rate">—</span>
+        </div>
+    </section>
+
+</div><!-- /page-wrapper -->
+
+<!-- ================================================================== -->
+<!-- EMAIL DETAIL MODAL                                                  -->
+<!-- ================================================================== -->
+<div
+    id="modal-overlay"
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-subject"
+    hidden
+>
+    <div class="modal-card glass" id="modal-card">
+        <!-- Close button -->
+        <button
+            id="modal-close"
+            class="modal-close"
+            type="button"
+            aria-label="Close email detail"
+        >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </button>
+
+        <!-- Prediction badge -->
+        <div class="modal-badge-row">
+            <span id="modal-badge" class="result-badge"></span>
+        </div>
+
+        <!-- Email metadata -->
+        <h2 id="modal-subject" class="modal-subject"></h2>
+
+        <dl class="modal-meta">
+            <div class="modal-meta-row">
+                <dt>From</dt>
+                <dd id="modal-sender"></dd>
+            </div>
+            <div class="modal-meta-row">
+                <dt>Date</dt>
+                <dd id="modal-date"></dd>
+            </div>
+        </dl>
+
+        <!-- Score bars -->
+        <div class="modal-scores">
+            <p class="result-label">Log Scores</p>
+            <div class="score-bars">
+                <div class="score-row">
+                    <span class="score-row__label">Spam</span>
+                    <div class="score-row__bar-track" role="progressbar" aria-label="Spam score bar">
+                        <div id="modal-spam-fill" class="score-row__bar-fill score-row__bar-fill--spam" style="width:0%"></div>
+                    </div>
+                    <span id="modal-spam-val" class="score-row__value"></span>
+                </div>
+                <div class="score-row">
+                    <span class="score-row__label">Ham</span>
+                    <div class="score-row__bar-track" role="progressbar" aria-label="Ham score bar">
+                        <div id="modal-ham-fill" class="score-row__bar-fill score-row__bar-fill--ham" style="width:0%"></div>
+                    </div>
+                    <span id="modal-ham-val" class="score-row__value"></span>
+                </div>
+            </div>
+            <p class="score-note">
+                Scores are raw log values. Not calibrated probabilities.
+            </p>
+        </div>
+
+        <div class="modal-privacy-note">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93-2.67-1.14-5-4.43-5-7.93V7.18L12 5z"/></svg>
+            Email body is analyzed and immediately discarded — never stored.
+        </div>
+    </div>
+</div>
+
+<!-- screen-reader only utility -->
+<style>.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}</style>
+
+<script src="/dashboard.js"></script>
+</body>
+</html>

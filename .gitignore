@@ -1,0 +1,36 @@
+# SpamGuard — .gitignore
+#
+# Secrets and credentials — NEVER committed to Git
+.env
+credentials.json
+token.json
+*.token
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Pytest cache
+.pytest_cache/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db

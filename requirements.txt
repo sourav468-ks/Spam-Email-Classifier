@@ -1,0 +1,18 @@
+numpy>=2.4
+pandas>=2.0
+scikit-learn>=1.5
+matplotlib>=3.8
+joblib>=1.3
+flask>=3.0
+pytest>=9.0
+
+# Google OAuth 2.0 and Gmail API
+google-auth>=2.27
+google-auth-oauthlib>=1.2
+google-api-python-client>=2.120
+
+# Environment variable loading from .env file (development convenience)
+python-dotenv>=1.0
+
+# HTTP requests (used by google_auth.py for token revocation)
+requests>=2.31

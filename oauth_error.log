@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "E:\Email_Classifier\backend\app.py", line 380, in oauth2callback
+    flow.fetch_token(
+  File "C:\Users\sahus\AppData\Roaming\Python\Python311\site-packages\google_auth_oauthlib\flow.py", line 287, in fetch_token
+    return self.oauth2session.fetch_token(self.client_config["token_uri"], **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sahus\AppData\Roaming\Python\Python311\site-packages\requests_oauthlib\oauth2_session.py", line 406, in fetch_token
+    self._client.parse_request_body_response(r.text, scope=self.scope)
+  File "C:\Users\sahus\AppData\Roaming\Python\Python311\site-packages\oauthlib\oauth2\rfc6749\clients\base.py", line 426, in parse_request_body_response
+    self.token = parse_token_response(body, scope=scope)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sahus\AppData\Roaming\Python\Python311\site-packages\oauthlib\oauth2\rfc6749\parameters.py", line 444, in parse_token_response
+    validate_token_parameters(params)
+  File "C:\Users\sahus\AppData\Roaming\Python\Python311\site-packages\oauthlib\oauth2\rfc6749\parameters.py", line 473, in validate_token_parameters
+    raise w
+Warning: Scope has changed from "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.readonly openid https://www.googleapis.com/auth/userinfo.profile" to "https://www.googleapis.com/auth/userinfo.email openid https://www.googleapis.com/auth/userinfo.profile".
