@@ -70,8 +70,8 @@ MAX_MESSAGE_LENGTH: int = 10_000   # characters; enforced by API and CLI
 # Flask
 # ---------------------------------------------------------------------------
 
-FLASK_HOST: str = "127.0.0.1"
-FLASK_PORT: int = 5000
+FLASK_HOST: str = "0.0.0.0"
+FLASK_PORT: int = int(os.environ.get("PORT", "5000"))
 FLASK_DEBUG: bool = False          # Never True in production
 
 # Flask session secret key — loaded from environment.
