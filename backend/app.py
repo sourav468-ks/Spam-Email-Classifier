@@ -39,6 +39,8 @@ Usage
 import os
 import sys
 import logging
+from flask import Flask
+app = Flask(__name__)
 
 # Allow running from project root
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -107,7 +109,7 @@ else:
 # - Secure=False: must be False for local HTTP development (set True for HTTPS production)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-app.config["SESSION_COOKIE_SECURE"] = False   # Set True in production (HTTPS)
+app.config["SESSION_COOKIE_SECURE"] = True   # Set True in production (HTTPS)
 
 
 # ---------------------------------------------------------------------------

@@ -85,9 +85,11 @@ FLASK_SECRET_KEY: str = os.environ.get("FLASK_SECRET_KEY", "")
 
 # Path to the credentials.json downloaded from Google Cloud Console.
 # Place it at the project root.  It is listed in .gitignore.
-GOOGLE_CREDENTIALS_FILE: str = os.path.join(
-    _ROOT, "credentials.json"
+GOOGLE_CREDENTIALS_FILE: str = os.environ.get(
+    "GOOGLE_CREDENTIALS_FILE",
+    os.path.join(_ROOT, "credentials.json")
 )
+
 
 # Minimum required scope — read-only access to the user's Gmail messages.
 # We never request write, send, delete, or full mail access.
